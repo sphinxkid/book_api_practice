@@ -12,7 +12,7 @@ func main() {
 	router := gin.Default()
 	router.Use(middleware.ErrorHandler())
 
-	bh := handlers.BookHandler{
+	bh := handlers.BooksHandler{
 		BooksDb: domain.NewBooksDb(),
 	}
 

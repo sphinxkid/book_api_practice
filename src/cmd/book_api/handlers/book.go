@@ -9,11 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BookHandler struct {
-	BooksDb *domain.BooksDb
-}
-
-func (bh *BookHandler) GetBooks(c *gin.Context) {
+func (bh *BooksHandler) GetBooks(c *gin.Context) {
 	books, err := bh.BooksDb.FindAllBooks()
 	if err != nil {
 		httpErr := error.NewHttpError("Unable to Find all Books", "", http.StatusInternalServerError)
@@ -23,7 +19,7 @@ func (bh *BookHandler) GetBooks(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, books)
 }
 
-func (bh *BookHandler) PostBooks(c *gin.Context) {
+func (bh *BooksHandler) PostBooks(c *gin.Context) {
 	var newBook domain.Book
 
 	err := c.BindJSON(&newBook)
@@ -37,7 +33,7 @@ func (bh *BookHandler) PostBooks(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newBook)
 }
 
-func (bh *BookHandler) GetBookByID(c *gin.Context) {
+func (bh *BooksHandler) GetBookByID(c *gin.Context) {
 	id := c.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {

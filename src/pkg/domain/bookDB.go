@@ -2,8 +2,6 @@ package domain
 
 import (
 	"log"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func (b *BooksDb) FindAllBooks() ([]Book, error) {

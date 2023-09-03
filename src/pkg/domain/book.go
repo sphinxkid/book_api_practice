@@ -3,6 +3,8 @@ package domain
 import (
 	"database/sql"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Book struct {

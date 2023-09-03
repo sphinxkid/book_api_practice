@@ -6,7 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func (b BooksDb) FindAllBooks() ([]Book, error) {
+func (b *BooksDb) FindAllBooks() ([]Book, error) {
 
 	findAllSql := "select book_id, book_name, genre, count from books"
 

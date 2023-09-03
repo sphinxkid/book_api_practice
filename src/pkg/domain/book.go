@@ -1,6 +1,9 @@
 package domain
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type Book struct {
 	ID    int
@@ -30,6 +33,45 @@ func (b *BooksDb) FindAllBooks() ([]Book, error) {
 		books = append(books, b)
 	}
 	return books, nil
+}
+
+func (b *BooksDb) CreateBook(book Book) (*int, error) {
+
+	insertStatement := `
+		INSERT INTO books(book_name, genre, count)
+		VALUES(?, ?, ?)
+	`
+
+	result, err := b.db.Exec(insertStatement, book.Name, book.Genre, book.Count)
+	if err != nil {
+		log.Println("Error while Inserting Book " + err.Error())
+		return nil, err
+	}
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		log.Println("Error while Getting Last Insert ID " + err.Error())
+		return nil, err
+	}
+	lastInsertIdInt := int(lastInsertId)
+
+	return &lastInsertIdInt, nil
+}
+
+func (b *BooksDb) GetBookByID(id int) (*Book, error) {
+	getStatement := `
+		SELECT book_name, genre, count FROM books WHERE book_id = ?
+	`
+	row := b.db.QueryRow(getStatement, id)
+	if row == nil {
+		log.Println("Error while Getting Book")
+		return nil, fmt.Errorf("Error while Getting Book")
+	}
+
+	var book Book
+	row.Scan(&book.Name, &book.Genre, &book.Count)
+	book.ID = id
+
+	return &book, nil
 }
 
 var Books = []Book{

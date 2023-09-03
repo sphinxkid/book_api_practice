@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"practice/book_api/pkg/domain"
 	"practice/book_api/pkg/error"
@@ -29,7 +30,13 @@ func (bh *BooksHandler) PostBooks(c *gin.Context) {
 		return
 	}
 
-	domain.Books = append(domain.Books, newBook)
+	id, err := bh.BooksDb.CreateBook(newBook)
+	if err != nil {
+		httpErr := error.NewHttpError("Unable to Create Book", "", http.StatusInternalServerError)
+		c.Error(httpErr)
+		return
+	}
+	newBook.ID = *id
 	c.IndentedJSON(http.StatusCreated, newBook)
 }
 
@@ -42,12 +49,13 @@ func (bh *BooksHandler) GetBookByID(c *gin.Context) {
 		return
 	}
 
-	for _, b := range domain.Books {
-		if b.ID == int(idInt) {
-			c.IndentedJSON(http.StatusOK, b)
-			return
-		}
+	book, err := bh.BooksDb.GetBookByID(int(idInt))
+	if err != nil {
+		errorMsg := fmt.Sprintf("Unable to Get Book with ID:%d", idInt)
+		httpErr := error.NewHttpError(errorMsg, "", http.StatusNotFound)
+		c.Error(httpErr)
+		return
 	}
 
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+	c.IndentedJSON(http.StatusOK, book)
 }

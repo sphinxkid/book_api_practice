@@ -1,11 +1,6 @@
 package domain
 
-import (
-	"database/sql"
-	"time"
-
-	_ "github.com/go-sql-driver/mysql"
-)
+import "log"
 
 type Book struct {
 	ID    int
@@ -14,24 +9,27 @@ type Book struct {
 	Count int
 }
 
-type BooksDb struct {
-	db *sql.DB
-}
+func (b *BooksDb) FindAllBooks() ([]Book, error) {
 
-func NewBooksDb() *BooksDb {
-	db, err := sql.Open("mysql", "test:test@tcp(127.0.0.1:3306)/books")
+	findAllSql := "select book_id, book_name, genre, count from books"
+
+	rows, err := b.db.Query(findAllSql)
 	if err != nil {
-		panic(err)
-	}
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
-
-	bookDB := &BooksDb{
-		db: db,
+		log.Println("Error while querying books table " + err.Error())
+		return nil, err
 	}
 
-	return bookDB
+	books := make([]Book, 0)
+	for rows.Next() {
+		var b Book
+		err := rows.Scan(&b.ID, &b.Name, &b.Genre, &b.Count)
+		if err != nil {
+			log.Println("Error while scanning books " + err.Error())
+			return nil, err
+		}
+		books = append(books, b)
+	}
+	return books, nil
 }
 
 var Books = []Book{

@@ -62,13 +62,13 @@ func (b *BooksDb) GetBookByID(id int) (*Book, error) {
 		SELECT book_name, genre, count FROM books WHERE book_id = ?
 	`
 	row := b.db.QueryRow(getStatement, id)
-	if row == nil {
-		log.Println("Error while Getting Book")
-		return nil, fmt.Errorf("Error while Getting Book")
-	}
 
 	var book Book
 	row.Scan(&book.Name, &book.Genre, &book.Count)
+	if book.Name == "" {
+		log.Println("Error No Book Found")
+		return nil, fmt.Errorf("Error No Book Found")
+	}
 	book.ID = id
 
 	return &book, nil

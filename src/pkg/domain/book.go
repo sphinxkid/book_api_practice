@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"fmt"
 	"log"
+
+	"practice/book_api/pkg/error"
 )
 
 type Book struct {
@@ -12,14 +13,14 @@ type Book struct {
 	Count int
 }
 
-func (b *BooksDb) FindAllBooks() ([]Book, error) {
+func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 
 	findAllSql := "select book_id, book_name, genre, count from books"
 
 	rows, err := b.db.Query(findAllSql)
 	if err != nil {
 		log.Println("Error while querying books table " + err.Error())
-		return nil, err
+		return nil, error.BookDBError.Wrap(err)
 	}
 
 	books := make([]Book, 0)
@@ -28,14 +29,14 @@ func (b *BooksDb) FindAllBooks() ([]Book, error) {
 		err := rows.Scan(&b.ID, &b.Name, &b.Genre, &b.Count)
 		if err != nil {
 			log.Println("Error while scanning books " + err.Error())
-			return nil, err
+			return nil, error.RowParsingError.Wrap(err)
 		}
 		books = append(books, b)
 	}
 	return books, nil
 }
 
-func (b *BooksDb) CreateBook(book Book) (*int, error) {
+func (b *BooksDb) CreateBook(book Book) (*int, *error.Error) {
 
 	insertStatement := `
 		INSERT INTO books(book_name, genre, count)
@@ -45,19 +46,19 @@ func (b *BooksDb) CreateBook(book Book) (*int, error) {
 	result, err := b.db.Exec(insertStatement, book.Name, book.Genre, book.Count)
 	if err != nil {
 		log.Println("Error while Inserting Book " + err.Error())
-		return nil, err
+		return nil, error.BookDBError.Wrap(err)
 	}
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
 		log.Println("Error while Getting Last Insert ID " + err.Error())
-		return nil, err
+		return nil, error.BookDBError.Wrap(err)
 	}
 	lastInsertIdInt := int(lastInsertId)
 
 	return &lastInsertIdInt, nil
 }
 
-func (b *BooksDb) GetBookByID(id int) (*Book, error) {
+func (b *BooksDb) GetBookByID(id int) (*Book, *error.Error) {
 	getStatement := `
 		SELECT book_name, genre, count FROM books WHERE book_id = ?
 	`
@@ -67,7 +68,7 @@ func (b *BooksDb) GetBookByID(id int) (*Book, error) {
 	row.Scan(&book.Name, &book.Genre, &book.Count)
 	if book.Name == "" {
 		log.Println("Error No Book Found")
-		return nil, fmt.Errorf("Error No Book Found")
+		return nil, error.NoBookError.New()
 	}
 	book.ID = id
 

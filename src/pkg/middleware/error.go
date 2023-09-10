@@ -13,7 +13,7 @@ func ErrorHandler() gin.HandlerFunc {
 		c.Next()
 		for _, err := range c.Errors {
 			switch e := err.Err.(type) {
-			case error.Http:
+			case error.Error:
 				c.AbortWithStatusJSON(e.StatusCode, e)
 			default:
 				c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{"message": "Service Unavailable"})

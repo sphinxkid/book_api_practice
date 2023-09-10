@@ -1,21 +1,68 @@
 package error
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
-type Http struct {
+// DB Errors
+var (
+	BookDBError     = NewError(1001, http.StatusInternalServerError, "Error in Books DB")
+	RowParsingError = NewError(1002, http.StatusInternalServerError, "Error in Parsing Rows")
+	NoBookError     = NewError(1003, http.StatusInternalServerError, "No Book Found")
+)
+
+// Http Errors
+var (
+	JsonBindingError = NewError(2001, http.StatusInternalServerError, "Error in Binding JSON")
+	ParamParseError  = NewError(2002, http.StatusBadRequest, "Unable to Parse URL Param")
+)
+
+type Error struct {
+	Code        int    `json:"code"`
+	StatusCode  int    `json:"status_code"`
 	Description string `json:"description,omitempty"`
-	Metadata    string `json:"metadata,omitempty"`
-	StatusCode  int    `json:"statusCode"`
+	Inner       *Error `json:"inner,omitempty"`
 }
 
-func (e Http) Error() string {
-	return fmt.Sprintf("description: %s,  metadata: %s", e.Description, e.Metadata)
+func (e Error) Error() string {
+	return fmt.Sprintf("Code: %d, Description: %s", e.Code, e.Description)
 }
 
-func NewHttpError(description, metadata string, statusCode int) Http {
-	return Http{
-		Description: description,
-		Metadata:    metadata,
-		StatusCode:  statusCode,
+func NewError(Code int, StatusCode int, Description string) *Error {
+	newError := &Error{
+		Code:        Code,
+		StatusCode:  StatusCode,
+		Description: Description,
 	}
+	return newError
+}
+
+func (e Error) New() *Error {
+	newError := &Error{
+		Code:        e.Code,
+		StatusCode:  e.StatusCode,
+		Description: e.Description,
+	}
+	return newError
+}
+
+func (e Error) Copy() *Error {
+	newError := &Error{
+		Code:        e.Code,
+		StatusCode:  e.StatusCode,
+		Description: e.Description,
+		Inner:       e.Inner,
+	}
+	return newError
+}
+
+func (e Error) Wrap(err error) *Error {
+	newError := &Error{
+		Code:        e.Code,
+		StatusCode:  e.StatusCode,
+		Description: err.Error(),
+	}
+	e.Inner = newError
+	return e.Copy()
 }

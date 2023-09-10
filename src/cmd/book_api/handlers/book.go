@@ -12,7 +12,7 @@ import (
 func (bh *BooksHandler) GetBooks(c *gin.Context) {
 	books, appErr := bh.BooksDb.FindAllBooks()
 	if appErr != nil {
-		c.Error(appErr)
+		c.Error(*appErr)
 		return
 	}
 	c.IndentedJSON(http.StatusOK, books)
@@ -23,13 +23,13 @@ func (bh *BooksHandler) PostBooks(c *gin.Context) {
 
 	err := c.BindJSON(&newBook)
 	if err != nil {
-		c.Error(error.JsonBindingError.Wrap(err))
+		c.Error(*error.JsonBindingError.Wrap(err))
 		return
 	}
 
 	id, appErr := bh.BooksDb.CreateBook(newBook)
 	if appErr != nil {
-		c.Error(appErr)
+		c.Error(*appErr)
 		return
 	}
 	newBook.ID = *id
@@ -40,13 +40,13 @@ func (bh *BooksHandler) GetBookByID(c *gin.Context) {
 	id := c.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
-		c.Error(error.ParamParseError.Wrap(err))
+		c.Error(*error.ParamParseError.Wrap(err))
 		return
 	}
 
 	book, appErr := bh.BooksDb.GetBookByID(int(idInt))
 	if appErr != nil {
-		c.Error(appErr)
+		c.Error(*appErr)
 		return
 	}
 

@@ -29,6 +29,7 @@ func (bs *BookService) GetAllBooks() ([]domain.Book, *error.Error) {
 
 // CreateABook creates a new book
 func (bs *BookService) CreateABook(newBook domain.Book) (*domain.Book, *error.Error) {
+	// Checks if the book has correct fields
 	if newBook.Name == "" || newBook.Genre == "" || newBook.Count < 0 {
 		return nil, error.IncorrectNewBookError.New()
 	}

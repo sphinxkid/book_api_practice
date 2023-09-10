@@ -18,6 +18,11 @@ var (
 	ParamParseError  = NewError(2002, http.StatusBadRequest, "Unable to Parse URL Param")
 )
 
+// Service Errors
+var (
+	IncorrectNewBookError = NewError(3001, http.StatusBadRequest, "Book has incorrect fields")
+)
+
 type Error struct {
 	Code        int    `json:"code"`
 	StatusCode  int    `json:"status_code"`

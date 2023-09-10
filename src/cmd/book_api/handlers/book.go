@@ -10,7 +10,7 @@ import (
 )
 
 func (bh *BooksHandler) GetBooks(c *gin.Context) {
-	books, appErr := bh.BooksDb.FindAllBooks()
+	books, appErr := bh.booksService.GetAllBooks()
 	if appErr != nil {
 		c.Error(*appErr)
 		return
@@ -27,13 +27,12 @@ func (bh *BooksHandler) PostBooks(c *gin.Context) {
 		return
 	}
 
-	id, appErr := bh.BooksDb.CreateBook(newBook)
+	book, appErr := bh.booksService.CreateABook(newBook)
 	if appErr != nil {
 		c.Error(*appErr)
 		return
 	}
-	newBook.ID = *id
-	c.IndentedJSON(http.StatusCreated, newBook)
+	c.IndentedJSON(http.StatusCreated, book)
 }
 
 func (bh *BooksHandler) GetBookByID(c *gin.Context) {
@@ -44,7 +43,7 @@ func (bh *BooksHandler) GetBookByID(c *gin.Context) {
 		return
 	}
 
-	book, appErr := bh.BooksDb.GetBookByID(int(idInt))
+	book, appErr := bh.booksService.GetBookByID(int(idInt))
 	if appErr != nil {
 		c.Error(*appErr)
 		return

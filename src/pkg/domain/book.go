@@ -13,6 +13,7 @@ type Book struct {
 	Count int
 }
 
+// FindAllBooks queries all the books in the db
 func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 
 	findAllSql := "select book_id, book_name, genre, count from books"
@@ -36,6 +37,7 @@ func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 	return books, nil
 }
 
+// CreateBook inserts a book in the db
 func (b *BooksDb) CreateBook(book Book) (*int, *error.Error) {
 
 	insertStatement := `
@@ -58,6 +60,7 @@ func (b *BooksDb) CreateBook(book Book) (*int, *error.Error) {
 	return &lastInsertIdInt, nil
 }
 
+// GetBookByID gets a book in the db using the book_id
 func (b *BooksDb) GetBookByID(id int) (*Book, *error.Error) {
 	getStatement := `
 		SELECT book_name, genre, count FROM books WHERE book_id = ?

@@ -1,9 +1,8 @@
 package domain
 
 import (
-	"log"
-
 	"practice/book_api/pkg/error"
+	"practice/book_api/pkg/logger"
 )
 
 type Book struct {
@@ -20,7 +19,7 @@ func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 
 	rows, err := b.db.Query(findAllSql)
 	if err != nil {
-		log.Println("Error while querying books table " + err.Error())
+		logger.Error("booksDB.FindAllBooks. Error while querying books table " + err.Error())
 		return nil, error.BookDBError.Wrap(err)
 	}
 
@@ -29,7 +28,7 @@ func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 		var b Book
 		err := rows.Scan(&b.ID, &b.Name, &b.Genre, &b.Count)
 		if err != nil {
-			log.Println("Error while scanning books " + err.Error())
+			logger.Error("booksDB.FindAllBooks. Error while scanning books " + err.Error())
 			return nil, error.RowParsingError.Wrap(err)
 		}
 		books = append(books, b)
@@ -47,12 +46,12 @@ func (b *BooksDb) CreateBook(book Book) (*int, *error.Error) {
 
 	result, err := b.db.Exec(insertStatement, book.Name, book.Genre, book.Count)
 	if err != nil {
-		log.Println("Error while Inserting Book " + err.Error())
+		logger.Error("booksDB.CreateBook. Error while Inserting Book " + err.Error())
 		return nil, error.BookDBError.Wrap(err)
 	}
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		log.Println("Error while Getting Last Insert ID " + err.Error())
+		logger.Error("booksDB.CreateBook. Error while Getting Last Insert ID " + err.Error())
 		return nil, error.BookDBError.Wrap(err)
 	}
 	lastInsertIdInt := int(lastInsertId)
@@ -70,7 +69,7 @@ func (b *BooksDb) GetBookByID(id int) (*Book, *error.Error) {
 	var book Book
 	row.Scan(&book.Name, &book.Genre, &book.Count)
 	if book.Name == "" {
-		log.Println("Error No Book Found")
+		logger.Error("booksDB.GetBookByID. Error No Book Found")
 		return nil, error.NoBookError.New()
 	}
 	book.ID = id

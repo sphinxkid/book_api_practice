@@ -3,6 +3,7 @@ package main
 import (
 	"practice/book_api/cmd/book_api/handlers"
 	"practice/book_api/pkg/domain"
+	"practice/book_api/pkg/logger"
 	"practice/book_api/pkg/middleware"
 	"practice/book_api/pkg/service"
 
@@ -19,6 +20,8 @@ func main() {
 	router.GET("/books", bh.GetBooks)
 	router.GET("/books/:id", bh.GetBookByID)
 	router.POST("/books", bh.PostBooks)
+
+	logger.Info("Starting Application...")
 
 	router.Run("localhost:8080")
 }

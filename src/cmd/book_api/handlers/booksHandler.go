@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"practice/book_api/pkg/domain"
+	"practice/book_api/pkg/dto"
 	"practice/book_api/pkg/error"
 	"practice/book_api/pkg/logger"
 	"practice/book_api/pkg/service"
@@ -35,7 +35,7 @@ func (bh *BooksHandler) GetBooks(c *gin.Context) {
 }
 
 func (bh *BooksHandler) PostBooks(c *gin.Context) {
-	var newBook domain.Book
+	var newBook dto.BookResponse
 
 	err := c.BindJSON(&newBook)
 	if err != nil {

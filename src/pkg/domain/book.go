@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"practice/book_api/pkg/dto"
 	"practice/book_api/pkg/error"
 	"practice/book_api/pkg/logger"
 )
@@ -10,6 +11,16 @@ type Book struct {
 	Name  string `db:"book_name"`
 	Genre string `db:"genre"`
 	Count int    `db:"count"`
+}
+
+func (b Book) ToDto() dto.BookResponse {
+	response := dto.BookResponse{
+		ID:    b.ID,
+		Name:  b.Name,
+		Genre: b.Genre,
+		Count: b.Count,
+	}
+	return response
 }
 
 // FindAllBooks queries all the books in the db

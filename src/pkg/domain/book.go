@@ -6,32 +6,21 @@ import (
 )
 
 type Book struct {
-	ID    int
-	Name  string
-	Genre string
-	Count int
+	ID    int    `db:"book_id"`
+	Name  string `db:"book_name"`
+	Genre string `db:"genre"`
+	Count int    `db:"count"`
 }
 
 // FindAllBooks queries all the books in the db
 func (b *BooksDb) FindAllBooks() ([]Book, *error.Error) {
 
 	findAllSql := "select book_id, book_name, genre, count from books"
-
-	rows, err := b.db.Query(findAllSql)
+	books := make([]Book, 0)
+	err := b.db.Select(&books, findAllSql)
 	if err != nil {
 		logger.Error("booksDB.FindAllBooks. Error while querying books table " + err.Error())
 		return nil, error.BookDBError.Wrap(err)
-	}
-
-	books := make([]Book, 0)
-	for rows.Next() {
-		var b Book
-		err := rows.Scan(&b.ID, &b.Name, &b.Genre, &b.Count)
-		if err != nil {
-			logger.Error("booksDB.FindAllBooks. Error while scanning books " + err.Error())
-			return nil, error.RowParsingError.Wrap(err)
-		}
-		books = append(books, b)
 	}
 	return books, nil
 }
@@ -64,10 +53,13 @@ func (b *BooksDb) GetBookByID(id int) (*Book, *error.Error) {
 	getStatement := `
 		SELECT book_name, genre, count FROM books WHERE book_id = ?
 	`
-	row := b.db.QueryRow(getStatement, id)
 
 	var book Book
-	row.Scan(&book.Name, &book.Genre, &book.Count)
+	err := b.db.Get(&book, getStatement, id)
+	if err != nil {
+		logger.Error("booksDB.GetBookByID. Unable to Get Book By ID")
+		return nil, error.BookDBError.Wrap(err)
+	}
 	if book.Name == "" {
 		logger.Error("booksDB.GetBookByID. Error No Book Found")
 		return nil, error.NoBookError.New()

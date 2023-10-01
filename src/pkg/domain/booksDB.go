@@ -1,18 +1,18 @@
 package domain
 
 import (
-	"database/sql"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 type BooksDb struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func NewBooksDb() *BooksDb {
-	db, err := sql.Open("mysql", "test:test@tcp(127.0.0.1:3306)/books")
+	db, err := sqlx.Open("mysql", "test:test@tcp(127.0.0.1:3306)/books")
 	if err != nil {
 		panic(err)
 	}
